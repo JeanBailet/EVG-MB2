@@ -1,0 +1,856 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#060F26">
+<title>Train de nuit InterLits</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@112,600;112,800&family=Figtree:wght@400;500;700&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+:root {
+  color-scheme: dark;
+  --nuit: #0B1B3F;
+  --nuit-2: #060F26;
+  --nuit-3: #13275A;
+  --ligne: #24396F;
+  --glace: #C9D6F2;
+  --texte: #F3F5FB;
+  --muted: #93A3C9;
+  --magenta: #A1006B;
+  --carmin: #E4002B;
+  --or: #F2C14E;
+  --ok: #3DDC84;
+  --warn: #FF9F1C;
+  --off: #8B95A7;
+  --danger: #FF5A6E;
+  --grad: linear-gradient(90deg, var(--magenta), var(--carmin));
+  --f-display: "Archivo", "Arial Narrow", Arial, system-ui, sans-serif;
+  --f-body: "Figtree", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --r: 14px;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { min-height: 100%; }
+body {
+  margin: 0;
+  background-color: var(--nuit-2);
+  background-image:
+    radial-gradient(1.2px 1.2px at 12% 18%, rgba(255,255,255,.55) 50%, transparent 51%),
+    radial-gradient(1px 1px at 78% 9%, rgba(255,255,255,.45) 50%, transparent 51%),
+    radial-gradient(1.4px 1.4px at 64% 34%, rgba(255,255,255,.35) 50%, transparent 51%),
+    radial-gradient(1px 1px at 32% 62%, rgba(255,255,255,.3) 50%, transparent 51%),
+    radial-gradient(1.2px 1.2px at 88% 72%, rgba(255,255,255,.35) 50%, transparent 51%),
+    radial-gradient(120% 60% at 50% 0%, #10245A 0%, var(--nuit-2) 70%);
+  background-attachment: fixed;
+  color: var(--texte);
+  font: 16px/1.5 var(--f-body);
+  -webkit-font-smoothing: antialiased;
+}
+button, input, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 3px solid var(--or); outline-offset: 2px; }
+h1, h2, h3 { font-family: var(--f-display); font-stretch: 112%; line-height: 1.12; text-wrap: balance; margin: 0; }
+p { margin: 0; }
+
+/* ---------- barre du haut ---------- */
+.topbar {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20;
+  background: rgba(6, 15, 38, .92); backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--ligne);
+}
+.topbar-in { max-width: 560px; margin: 0 auto; padding: 10px 16px; display: flex; align-items: center; gap: 12px; }
+.logo { width: 40px; height: 40px; border-radius: 10px; border: 0; background: var(--grad); display: grid; place-items: center; flex: none; padding: 0; }
+.logo svg { width: 22px; height: 22px; }
+.brand { min-width: 0; flex: 1; }
+.brand b { font-family: var(--f-display); font-stretch: 112%; font-weight: 800; font-size: 17px; letter-spacing: .01em; }
+.brand b span { font-weight: 600; color: var(--glace); }
+.brand small { display: block; color: var(--muted); font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.chip { flex: none; font-size: 12px; font-weight: 700; padding: 5px 9px; border-radius: 999px; background: var(--nuit-3); border: 1px solid var(--ligne); color: var(--glace); max-width: 42vw; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.progress { height: 4px; background: var(--nuit-3); }
+.progress i { display: block; height: 100%; background: var(--grad); transition: width .6s ease; }
+
+/* ---------- mise en page ---------- */
+.wrap { max-width: 560px; margin: 0 auto; padding-inline: 16px; padding-block: 18px 40px; display: flex; flex-direction: column; gap: 16px; }
+.eyebrow { font-family: var(--f-mono); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--or); }
+.lead { color: var(--glace); font-size: 16px; }
+.muted { color: var(--muted); font-size: 14px; }
+.panel { background: var(--nuit); border: 1px solid var(--ligne); border-radius: var(--r); padding: 18px; display: flex; flex-direction: column; gap: 14px; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.stack { display: flex; flex-direction: column; gap: 10px; }
+
+.btn { border: 0; border-radius: 12px; padding: 13px 18px; font-weight: 700; font-size: 16px; background: var(--grad); color: #fff; display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.btn.wide { width: 100%; }
+.btn.ghost { background: transparent; border: 1px solid var(--ligne); color: var(--glace); }
+.btn.gold { background: var(--or); color: #2B1E05; }
+.btn[href] { text-decoration: none; }
+.link { background: none; border: 0; color: var(--glace); text-decoration: underline; text-underline-offset: 3px; padding: 6px 0; font-size: 14px; }
+
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label { font-size: 13px; color: var(--muted); font-weight: 500; }
+.input { width: 100%; background: var(--nuit-2); border: 1px solid var(--ligne); border-radius: 10px; padding: 12px 14px; font-size: 17px; }
+.input.code { font-family: var(--f-mono); font-size: 26px; letter-spacing: .4em; text-align: center; }
+
+.msg { border-radius: 12px; padding: 12px 14px; font-size: 15px; }
+.msg.err { background: rgba(255, 90, 110, .12); border: 1px solid rgba(255, 90, 110, .45); color: #FFD3D9; }
+.msg.ok { background: rgba(61, 220, 132, .12); border: 1px solid rgba(61, 220, 132, .45); color: #CFF7E0; }
+
+/* ---------- enveloppe ---------- */
+.envelope { display: flex; gap: 12px; align-items: center; background: var(--grad); border-radius: 12px; padding: 12px 14px; color: #fff; }
+.envelope svg { width: 30px; height: 30px; flex: none; }
+.envelope b { display: block; font-family: var(--f-display); font-stretch: 112%; font-size: 18px; }
+.envelope span { font-size: 13px; opacity: .92; }
+
+/* ---------- trajet (tableau des départs) ---------- */
+.board { background: #050B1C; border: 1px solid var(--ligne); border-radius: var(--r); overflow: hidden; }
+.board-head { display: grid; grid-template-columns: 56px 1fr auto; gap: 10px; padding: 10px 14px; font-family: var(--f-mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--ligne); }
+.stop { display: grid; grid-template-columns: 56px 1fr auto; gap: 10px; align-items: center; padding: 13px 14px; border-bottom: 1px solid rgba(36, 57, 111, .6); width: 100%; background: transparent; border-left: 0; border-right: 0; border-top: 0; text-align: left; }
+.stop:last-child { border-bottom: 0; }
+.stop .n { font-family: var(--f-mono); font-weight: 600; color: var(--or); font-size: 15px; }
+.stop .t { font-weight: 700; }
+.stop .t small { display: block; font-weight: 400; color: var(--muted); font-size: 12.5px; }
+.stop.locked { color: #56668F; cursor: default; }
+.stop.locked .n { color: #56668F; }
+.stop.locked .t { font-family: var(--f-mono); letter-spacing: .2em; }
+.stop.locked .t small { font-family: var(--f-body); letter-spacing: normal; }
+button.stop:hover { background: rgba(255,255,255,.03); }
+.stop.current { background: rgba(242, 193, 78, .07); }
+.pill { font-size: 11.5px; font-weight: 700; padding: 4px 9px; border-radius: 999px; white-space: nowrap; }
+.pill.done { background: rgba(61, 220, 132, .14); color: var(--ok); }
+.pill.now { background: var(--or); color: #2B1E05; }
+.pill.lock { background: transparent; border: 1px solid #33456F; color: #6E7EA6; display: inline-flex; align-items: center; gap: 4px; }
+.pill.lock svg { width: 11px; height: 11px; }
+
+/* ---------- vidéo ---------- */
+.video { border-radius: 12px; overflow: hidden; background: #000; border: 1px solid var(--ligne); }
+.video video { display: block; width: 100%; max-height: 70vh; background: #000; }
+.video-missing { aspect-ratio: 9 / 12; max-height: 60vh; width: 100%; display: grid; place-items: center; text-align: center; padding: 20px; color: var(--muted); background: repeating-linear-gradient(135deg, #07102A 0 14px, #0A1634 14px 28px); }
+.video-missing b { color: var(--glace); display: block; margin-bottom: 6px; font-family: var(--f-display); font-stretch: 112%; font-size: 18px; }
+
+/* ---------- bouton « Demander un indice » (en haut de chaque étape) ---------- */
+.headrow { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 40px; }
+.hintbtn { flex: none; display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 7px 13px 7px 10px; border-radius: 999px; background: rgba(242, 193, 78, .08); border: 1px solid rgba(242, 193, 78, .45); color: var(--texte); font-size: 13.5px; font-weight: 700; }
+.hintbtn svg { width: 17px; height: 17px; color: var(--or); }
+.skin-street .hintbtn { background: rgba(245, 197, 24, .08); border-color: rgba(245, 197, 24, .5); }
+.skin-street .hintbtn svg { color: #F5C518; }
+.skin-term .hintbtn { background: rgba(57, 226, 127, .08); border-color: #1F7A45; color: #CFF7E0; font-family: var(--f-mono); font-weight: 600; }
+.skin-term .hintbtn svg { color: #39E27F; }
+
+/* ---------- indices de l'enquêteur ---------- */
+.hint { display: flex; gap: 10px; align-items: flex-start; }
+.hint .av { width: 34px; height: 34px; border-radius: 50%; background: var(--or); color: #2B1E05; font-weight: 800; display: grid; place-items: center; flex: none; font-size: 14px; }
+.hint .bubble { background: var(--nuit-3); border: 1px solid var(--ligne); border-radius: 4px 12px 12px 12px; padding: 10px 12px; font-size: 15px; }
+.hint .bubble b { display: block; font-size: 12px; color: var(--or); margin-bottom: 2px; }
+
+/* ---------- accueil : services à bord ---------- */
+.depart { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 6px 12px; background: #050B1C; border: 1px solid var(--ligne); border-radius: 12px; padding: 12px 14px; }
+.depart b { display: block; font-family: var(--f-display); font-stretch: 112%; font-weight: 800; font-size: 30px; line-height: 1.05; letter-spacing: .04em; text-transform: uppercase; color: var(--or); }
+.depart .meta { margin-left: auto; text-align: right; font-size: 14px; color: var(--glace); padding-bottom: 3px; }
+.depart .meta span { display: block; white-space: nowrap; }
+.services { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+@media (min-width: 520px) { .services { grid-template-columns: repeat(4, 1fr); } }
+.service { position: relative; width: 100%; background: var(--nuit-3); border: 1px solid var(--ligne); border-radius: 12px; padding: 14px 8px 12px; text-align: center; font-size: 13.5px; font-weight: 500; color: var(--glace); }
+.service svg { width: 26px; height: 26px; display: block; margin: 0 auto 6px; color: var(--or); }
+.service:hover { border-color: #3A5290; }
+.service.active { border-color: var(--or); background: rgba(242, 193, 78, .1); }
+.service.seen::after { content: "✓"; position: absolute; top: 6px; right: 6px; width: 18px; height: 18px; border-radius: 50%; background: var(--or); color: #2B1E05; font-size: 11px; font-weight: 800; line-height: 18px; text-align: center; }
+.service-info { background: var(--nuit-2); border: 1px dashed var(--ligne); border-radius: 12px; padding: 12px 14px; font-size: 15px; color: var(--glace); min-height: 50px; }
+.service-info b { display: block; font-family: var(--f-display); font-stretch: 112%; font-size: 15px; color: var(--or); margin-bottom: 2px; }
+.service-info.idle { color: var(--muted); font-size: 14px; }
+.alert { border: 1px solid var(--carmin); background: linear-gradient(180deg, rgba(228,0,43,.22), rgba(161,0,107,.14)); border-radius: var(--r); padding: 16px; display: flex; flex-direction: column; gap: 12px; animation: blink 1.2s ease 2; }
+.alert .eyebrow { color: #FF8FA0; }
+@keyframes blink { 50% { box-shadow: 0 0 0 6px rgba(228, 0, 43, .25); } }
+
+/* ---------- étape 2 : cartes joueurs ---------- */
+.cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.fut { position: relative; border: 0; padding: 12px 8px 10px; color: #3B2A0A; background: linear-gradient(160deg, #FBEBB0 0%, #E2BD5A 55%, #B8872E 100%); clip-path: polygon(14% 0, 86% 0, 100% 9%, 100% 100%, 0 100%, 0 9%); display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 0; }
+.fut .ovr { font-family: var(--f-display); font-stretch: 112%; font-weight: 800; font-size: 30px; line-height: 1; }
+.fut .pos { font-weight: 800; font-size: 11px; letter-spacing: .08em; }
+.fut .ph { width: 64%; aspect-ratio: 1; border-radius: 50%; background: rgba(255,255,255,.35); display: grid; place-items: center; font-family: var(--f-display); font-weight: 800; font-size: 22px; overflow: hidden; }
+.fut .ph img { width: 100%; height: 100%; object-fit: cover; }
+.fut .nm { font-weight: 800; font-size: 12.5px; text-transform: uppercase; text-align: center; line-height: 1.15; min-height: 2.3em; display: grid; place-items: center; }
+.fut .st { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 2px 6px; font-size: 10.5px; border-top: 1px solid rgba(90, 60, 10, .35); padding-top: 5px; }
+.fut .st span { display: flex; gap: 4px; white-space: nowrap; }
+.fut .st i { font-style: normal; font-weight: 600; letter-spacing: .02em; }
+.statlegend { font-size: 12.5px; color: var(--muted); }
+.fut .st b { font-variant-numeric: tabular-nums; }
+.fut[aria-pressed="true"] { outline: 3px solid #fff; outline-offset: 3px; }
+@media (max-width: 340px) { .fut .st { grid-template-columns: 1fr; } }
+
+/* ---------- étape 3 : suspects ---------- */
+.suspects { display: flex; flex-direction: column; gap: 8px; }
+.suspect { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; background: var(--nuit-3); border: 1px solid var(--ligne); border-radius: 12px; padding: 10px 12px; }
+.suspect .num { width: 36px; height: 36px; border-radius: 50%; background: var(--nuit-2); border: 1px solid var(--ligne); display: grid; place-items: center; font-family: var(--f-mono); font-weight: 600; color: var(--or); flex: none; }
+.suspect b { display: block; }
+.suspect small { color: var(--muted); }
+.suspect[aria-pressed="true"] { border-color: var(--or); background: rgba(242, 193, 78, .1); }
+.suspects.wait .suspect { opacity: .45; cursor: not-allowed; }
+.cooldown { display: flex; align-items: center; justify-content: space-between; gap: 12px; background: var(--nuit-2); border: 1px solid var(--ligne); border-radius: 12px; padding: 10px 14px; color: var(--glace); font-size: 14px; }
+.cooldown b { font-family: var(--f-mono); font-size: 26px; font-weight: 600; line-height: 1; color: var(--or); font-variant-numeric: tabular-nums; }
+
+/* ---------- étape 4 : annonce du contrôleur ---------- */
+.annonce { display: flex; gap: 12px; align-items: flex-start; background: var(--nuit); border: 1px solid var(--ligne); border-left: 4px solid var(--or); border-radius: 12px; padding: 14px; color: var(--glace); font-size: 16px; }
+.annonce svg { width: 24px; height: 24px; flex: none; color: var(--or); margin-top: 1px; }
+
+/* ---------- étape 5 : leviers ---------- */
+.levers { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; padding: 16px 8px 10px; background: #050B1C; border: 1px solid var(--ligne); border-radius: var(--r); }
+.lever { background: transparent; border: 0; padding: 0; display: flex; flex-direction: column; align-items: center; gap: 6px; position: relative; }
+.lever .slot { width: 16px; height: 96px; border-radius: 8px; background: #0E1A3A; border: 1px solid #2A3E73; position: relative; }
+.lever .knob { position: absolute; left: 50%; top: 2px; width: 34px; height: 34px; margin-left: -17px; border-radius: 50%; background: var(--c); border: 2px solid rgba(0,0,0,.35); box-shadow: inset 0 -4px 0 rgba(0,0,0,.2); transition: top .25s cubic-bezier(.3,1.5,.6,1); }
+.lever[aria-pressed="true"] .knob { top: 58px; }
+.lever .lt { font-family: var(--f-mono); font-weight: 600; font-size: 16px; }
+.lever .ord { position: absolute; top: -10px; right: 2px; min-width: 20px; height: 20px; border-radius: 10px; background: var(--or); color: #2B1E05; font-size: 12px; font-weight: 800; display: grid; place-items: center; }
+.seq { font-family: var(--f-mono); font-size: 18px; letter-spacing: .15em; min-height: 28px; color: var(--glace); }
+
+/* ---------- étape 6 : battle ---------- */
+.skin-street .panel { background: #121212; border-color: #3A3212; }
+.skin-street .eyebrow { color: #F5C518; }
+.words { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.word { background: #FFF4C2; color: #121212; border-radius: 10px; padding: 10px; text-align: center; font-weight: 800; font-size: 17px; }
+.timer { font-family: var(--f-mono); font-weight: 600; font-size: clamp(56px, 20vw, 88px); text-align: center; line-height: 1; letter-spacing: .02em; color: #F5C518; font-variant-numeric: tabular-nums; }
+.timer.end { color: var(--danger); animation: blink .8s ease 4; }
+.btn.street { background: #F5C518; color: #121212; }
+
+/* ---------- étape 7 : terminal ---------- */
+.skin-term .panel { background: #0A120D; border-color: #1F7A45; font-family: var(--f-mono); }
+.skin-term .eyebrow { color: #39E27F; }
+.term-line { color: #39E27F; font-size: 14px; }
+.term-line .red { color: #FF4D4D; font-weight: 600; }
+.slots { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.dslot { height: 64px; border-radius: 10px; border: 2px solid #1F7A45; display: grid; place-items: center; font-size: 30px; font-weight: 600; color: #CFF7E0; background: #06100A; }
+.dslot.cur { border-color: #39E27F; box-shadow: 0 0 0 3px rgba(57, 226, 127, .2); }
+.pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.key { height: 56px; border-radius: 10px; border: 1px solid #1F7A45; background: #0E1C13; color: #CFF7E0; font-family: var(--f-mono); font-size: 22px; font-weight: 600; }
+.key.act { font-size: 14px; }
+.key.go { background: #39E27F; color: #06100A; border-color: #39E27F; }
+.hist { display: flex; flex-direction: column; gap: 6px; }
+.hrow { display: grid; grid-template-columns: 34px repeat(4, 1fr); gap: 6px; align-items: center; }
+.hrow .i { color: #5FA67A; font-size: 12px; }
+.cell { height: 40px; border-radius: 8px; display: grid; place-items: center; font-size: 20px; font-weight: 600; color: #06100A; }
+.cell.vert { background: #3DDC84; }
+.cell.orange { background: #FF9F1C; }
+.cell.gris { background: #56605A; color: #D8DDD9; }
+.legend { display: flex; gap: 12px; flex-wrap: wrap; font-size: 12.5px; color: #9FD8B5; }
+.legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; margin-right: 5px; }
+
+/* ---------- fenêtre (dialogue) ---------- */
+.modal { position: fixed; inset: 0; z-index: 50; background: rgba(3, 8, 20, .78); display: grid; place-items: center; padding: 16px; }
+.dialog { width: 100%; max-width: 420px; background: var(--nuit); border: 1px solid var(--ligne); border-radius: var(--r); padding: 18px; display: flex; flex-direction: column; gap: 14px; max-height: 88vh; overflow: auto; }
+.dialog h3 { font-size: 20px; }
+.mj-list { display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: var(--glace); }
+.mj-list div { display: flex; justify-content: space-between; gap: 10px; border-bottom: 1px dashed var(--ligne); padding-block: 4px; }
+select.input { font-size: 16px; }
+
+.fade-in { animation: fade .35s ease both; }
+@keyframes fade { from { opacity: .001; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+</style>
+
+</head>
+<body>
+<script>window.EG_HOSTED = true;</script>
+<header class="topbar">
+  <div class="topbar-in">
+    <button class="logo" id="logo" type="button" aria-label="InterLits de Nuit">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#fff" d="M15.5 2.6a9.6 9.6 0 1 0 5.9 17.2A8.2 8.2 0 0 1 15.5 2.6z"/></svg>
+    </button>
+    <div class="brand">
+      <b>InterLits <span>de Nuit</span></b>
+      <small id="trainline">Train de nuit</small>
+    </div>
+    <span class="chip" id="adjchip" hidden></span>
+  </div>
+  <div class="progress"><i id="progress" style="width:0%"></i></div>
+</header>
+
+<main class="wrap" id="app" aria-live="polite"></main>
+
+<div class="modal" id="modal" hidden>
+  <div class="dialog" role="dialog" aria-modal="true" id="dialog"></div>
+</div>
+
+<script>
+/* =====================================================================
+   RÉGLAGES DU JEU — tout ce qui est modifiable est ici.
+   Les textes marqués « provisoire » sont des brouillons à adapter.
+   ===================================================================== */
+const CONFIG = {
+  train: { numero: '[5789]', depart: 'Paris-Austerlitz', destination: 'Tarbes' },
+
+  // Étape 0 : services à bord. Chaque service affiche son texte quand on le touche ;
+  // l’alerte « train attaqué » n’apparaît qu’une fois TOUS les services consultés.
+  // icone : wifi, cup, bed ou book. Textes provisoires sauf la bibliothèque.
+  services: [
+    { id: 'wifi', nom: 'Wi-Fi', icone: 'wifi', texte: 'Le Wi-Fi à bord est momentanément indisponible. Profitez-en pour faire connaissance avec vos voisins de cabine.' },
+    { id: 'bar', nom: 'Wagon-bar', icone: 'cup', texte: 'Notre wagon-bar reste ouvert toute la nuit. Au menu ce soir : croque-monsieur, chips et canettes bien fraîches.' },
+    { id: 'couchettes', nom: 'Couchettes', icone: 'bed', texte: 'Vos couchettes sont prêtes : draps fournis, oreiller moelleux, bouchons d’oreilles non inclus.' },
+    { id: 'bibliotheque', nom: 'Bibliothèque', icone: 'book', texte: 'Vous trouverez notre sélection d’ouvrages préparée par notre barista dans votre goodie bag de bienvenue.' },
+  ],
+
+  // Code du mode maître du jeu (toucher 5 fois le logo en haut à gauche).
+  codeMJ: '0000',
+
+  // Vidéos : à déposer dans le dossier « videos » à côté de la page.
+  videos: {
+    V1: 'videos/V1-mechant.mp4',
+    V2: 'videos/V2-interrogatoires.mp4',
+    V3: 'videos/V3-wagon-bar.mp4',
+    V4: 'videos/V4-fin.mp4',
+  },
+
+  // Étape 2 : les 3 enquêteurs (mêmes notes que sur les cartes joueurs imprimées).
+  // photo : chemin d'une image (ex. 'photos/figaro.jpg'), ou '' pour afficher les initiales.
+  enqueteurs: [
+    { id: 'figaro', nom: 'Figaro', photo: '', stats: [95, 65, 85, 30, 45, 70] },
+    { id: 'maxime', nom: 'Maxime Boirin', photo: '', stats: [65, 80, 45, 95, 85, 80] },
+    { id: 'mystere', nom: '[Nom à définir]', photo: '', stats: [45, 95, 65, 65, 65, 60] },
+  ],
+  statsNoms: ['Flair', 'Déduction', 'Discrétion', 'Force', 'Nuit blanche', 'Charisme'],
+  statsCodes: ['FLA', 'DÉD', 'DIS', 'FOR', 'NUI', 'CHA'],
+
+  // Étape 3 : les 5 suspects, dans l'ordre des fiches. Coupable = numéro 5.
+  suspects: ['[Suspect 1]', '[Suspect 2]', '[Suspect 3]', '[Suspect 4]', '[Suspect 5]'],
+  coupable: 5,
+  // Après une mauvaise accusation : attente (en secondes) avant de pouvoir accuser à nouveau.
+  // On peut continuer à naviguer dans l'application pendant l'attente.
+  attenteAccusation: 120,
+
+  // Étape 4 : code d’accès de la cabine de pilotage (espaces et ponctuation ignorés).
+  cabine: { code: '42023' },
+
+  // Étape 5 : leviers à activer, dans l'ordre (lettres A à F).
+  leviers: ['F', 'C', 'E', 'B', 'A'],
+
+  // Étape 6 : battle de rap.
+  battle: {
+    mots: ['couchette', 'canette', 'pantalon', 'Astérix'],
+    dureeSecondes: 240,
+    code: '0000', // à remplacer par la date du mariage au format JJMM
+  },
+
+  // Étape 7 : code des menottes (Mastermind).
+  menottes: { code: '1995' },
+
+  // Étape 8 : lieu du repaire (plusieurs orthographes acceptées).
+  repaire: ['[lieu]'],
+
+  // Bouton « Demander un indice » en haut de chaque étape. Chaque demande tire un indice au hasard :
+  // chacun sort une fois, dans le désordre, avant un nouveau tirage, et jamais deux fois le même
+  // d’affilée. lien (facultatif) : bouton qui ouvre la page.
+  indices: [
+    { texte: 'Les vrais alcooliques sont foutus comme des grenouilles.' },
+    { texte: '[Indice n° 2 : réplique à coller ici]' },
+    { texte: 'Regardez attentivement cette vidéo.', lien: 'https://www.youtube.com/watch?v=fTKbs7P_i3c&list=RDfTKbs7P_i3c&start_radio=1', libelleLien: 'Ouvrir la vidéo' },
+  ],
+
+  // Textes affichés (provisoires, à adapter).
+  textes: {
+    accueil: 'Mesdames et Messieurs, toute l’équipe InterLits de Nuit vous souhaite la bienvenue à bord de ce train à destination de {destination}. Vos services sont disponibles ci-dessous.',
+    alerte: 'Une vidéo des assaillants vient d’être interceptée : regardez-la immédiatement.',
+    adjoint: 'Vous n’êtes fort heureusement pas seuls dans cette aventure. Choisissez l’enquêteur adjoint qui vous accompagnera : il pourra vous donner de précieux indices.',
+    canette: 'Votre enquêteur adjoint a interrogé les suspects sur leur alibi dans les 10 minutes avant le départ du train. Regardez les interrogatoires, examinez les pièces de l’enveloppe, puis désignez le coupable.',
+    cabineInfo: 'Le contrôleur vous fait savoir que le conducteur a habité Avenue de Brancolar.',
+    cabineOk: 'La porte s’ouvre ! Le conducteur se réveille… mais il est encore bien trop groggy pour conduire. À vous d’arrêter le train.',
+    leviers: 'Les bandits ont déchiré la procédure d’arrêt d’urgence. Recollez-la, puis activez les bons leviers dans le bon ordre.',
+    leviersOk: 'Le train freine dans un long crissement… et s’arrête. Mais les bandits courent toujours, et seuls les voyageurs du wagon-bar savent où ils sont partis.',
+    battle: 'Les voyageurs du wagon-bar ne parlent qu’à ceux qui ont gagné leur respect. Formez deux équipes : 4 minutes pour préparer un slam avec les mots imposés, puis 1 minute chacune devant le jury.',
+    battleOk: 'Respect ! Les voyageurs du wagon-bar vous mettent sur la piste du terminal qui commande les menottes d’Eugénie.',
+    menottes: 'Le terminal des menottes est protégé par un code à 4 chiffres. À chaque essai, il indique le verdict de chaque chiffre.',
+    menottesOk: 'Menottes désactivées : Eugénie est libérée !',
+    repaire: 'Eugénie est libre, mais les bandits ont filé. Grâce aux indices de la carte, trouvez où ils se sont retranchés.',
+    fin: 'Repaire localisé ! Les bandits sont cernés, Eugénie est sauvée et le train peut repartir. Bravo à toute l’équipe !',
+  },
+};
+
+/* =====================================================================
+   Moteur du jeu
+   ===================================================================== */
+const STEPS = [
+  { titre: 'Bienvenue à bord', sous: 'Services à bord' },
+  { titre: 'La menace', sous: 'Message intercepté' },
+  { titre: 'Votre enquêteur adjoint', sous: 'Recrutement' },
+  { titre: 'La canette empoisonnée', sous: 'Interrogatoires' },
+  { titre: 'La cabine de pilotage', sous: 'Porte verrouillée' },
+  { titre: 'Les bons leviers', sous: 'Arrêt d’urgence' },
+  { titre: 'La battle de rap', sous: 'Wagon-bar' },
+  { titre: 'Les menottes d’Eugénie', sous: 'Terminal à distance' },
+  { titre: 'Le repaire des bandits', sous: 'Carte du trajet' },
+  { titre: 'Terminus', sous: 'Fin du voyage' },
+];
+const LAST = STEPS.length - 1;
+const KEY = 'interlits-evg-partie-v1';
+const HOSTED = !!window.EG_HOSTED;
+
+const fresh = () => ({ unlocked: 0, done: {}, adjoint: null, startedAt: null, finishedAt: null, services: [], hintCount: 0, hintBag: [], lastHint: null, lock3: null, mm: [], errors: {} });
+function load() {
+  try { const raw = localStorage.getItem(KEY); if (raw) return Object.assign(fresh(), JSON.parse(raw)); } catch (e) {}
+  return fresh();
+}
+let S = load();
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+
+const $ = (sel, root = document) => root.querySelector(sel);
+const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const norm = (s) => String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]/g, '');
+const initials = (n) => n.replace(/[\[\]]/g, '').split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join('') || '?';
+const ovr = (st) => Math.round(st.reduce((a, b) => a + b, 0) / st.length);
+const adj = () => CONFIG.enqueteurs.find((e) => e.id === S.adjoint) || null;
+const adjName = () => (adj() ? adj().nom : 'votre enquêteur adjoint');
+
+const ICON = {
+  lock: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M17 9V7A5 5 0 0 0 7 7v2H5v13h14V9zm-8 0V7a3 3 0 0 1 6 0v2z"/></svg>',
+  env: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M2 5h20v14H2zm2 2v.5l8 5 8-5V7zm16 2.9-8 5-8-5V17h16z"/></svg>',
+  wifi: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 18.5a1.8 1.8 0 1 1 0 3.6 1.8 1.8 0 0 1 0-3.6zM2 8.8a14.5 14.5 0 0 1 20 0l-1.8 1.9a11.8 11.8 0 0 0-16.4 0zm3.6 3.7a9.3 9.3 0 0 1 12.8 0l-1.8 1.9a6.6 6.6 0 0 0-9.2 0z"/></svg>',
+  cup: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 8h14v5a6 6 0 0 1-6 6H9a6 6 0 0 1-6-6zm14 1h1.5a2.5 2.5 0 0 1 0 5H17v-2h1.5a.5.5 0 0 0 0-1H17zM2 21h17v1.5H2z"/></svg>',
+  bed: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M2 5h2v8h7V8h8a3 3 0 0 1 3 3v8h-2v-3H4v3H2zm5 3.5a2 2 0 1 1 0 4 2 2 0 0 1 0-4z"/></svg>',
+  book: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 6.3C10.2 5 7.8 4.4 5 4.4c-1.1 0-2.1.1-3 .3v14.1c.9-.2 1.9-.3 3-.3 2.8 0 5.2.6 7 1.9 1.8-1.3 4.2-1.9 7-1.9 1.1 0 2.1.1 3 .3V4.7c-.9-.2-1.9-.3-3-.3-2.8 0-5.2.6-7 1.9zm-1 12.1c-1.7-.7-3.7-1-6-1l-1 .1V6.5l1-.1c2.3 0 4.3.5 6 1.4zm9-.9-1-.1c-2.3 0-4.3.3-6 1V7.8c1.7-.9 3.7-1.4 6-1.4l1 .1z"/></svg>',
+  mega: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M18 4v16l-7-3.2V17h-.9l1.2 4H8.2L7 16.8A3 3 0 0 1 4 14v-4a3 3 0 0 1 3-3h4zm2 5.2a3 3 0 0 1 0 5.6z"/></svg>',
+  bulb: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M9 20h6v2H9zm3-18a7 7 0 0 0-4 12.7V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.3A7 7 0 0 0 12 2zm2.9 11.1-.9.6V16h-4v-2.3l-.9-.6a5 5 0 1 1 5.8 0z"/></svg>',
+};
+
+/* ---------- vidéos : préchargées en mémoire pour marcher sans réseau ---------- */
+const VID = {};
+async function preloadVideos() {
+  for (const [k, url] of Object.entries(CONFIG.videos)) {
+    VID[k] = { state: 'loading', url: null };
+    try {
+      const r = await fetch(url, { cache: 'force-cache' });
+      if (!r.ok) throw new Error(r.status);
+      const blob = await r.blob();
+      if (!blob.size || !/video|octet/.test(blob.type || 'video/mp4')) throw new Error('type');
+      VID[k] = { state: 'ok', url: URL.createObjectURL(blob) };
+    } catch (e) { VID[k] = { state: 'missing', url: null }; }
+    const holder = document.querySelector(`[data-video="${k}"]`);
+    if (holder) holder.outerHTML = videoHTML(k);
+  }
+}
+function videoHTML(k, label = '') {
+  const v = VID[k];
+  if (v && v.state === 'ok') return `<div class="video" data-video="${k}"><video src="${v.url}" controls playsinline preload="auto"></video></div>`;
+  const msg = !v || v.state === 'loading' ? 'Chargement de la vidéo…' : `Vidéo ${k} pas encore ajoutée (fichier ${esc(CONFIG.videos[k])}).`;
+  return `<div class="video" data-video="${k}"><div class="video-missing"><div><b>${esc(label || 'Vidéo ' + k)}</b>${msg}</div></div></div>`;
+}
+
+/* ---------- progression ---------- */
+function unlock(n) { if (n > S.unlocked) S.unlocked = Math.min(n, LAST); save(); }
+function complete(i) {
+  S.done[i] = true;
+  if (i === 0 && !S.startedAt) S.startedAt = Date.now();
+  if (i === LAST - 1 && !S.finishedAt) S.finishedAt = Date.now();
+  unlock(i + 1); save(); paintTop();
+}
+function canOpen(i) { return i <= S.unlocked; }
+
+/* ---------- barre du haut ---------- */
+function paintTop() {
+  $('#trainline').textContent = `Train n° ${CONFIG.train.numero} · ${CONFIG.train.depart} → ${CONFIG.train.destination}`;
+  const pct = Math.round((Object.keys(S.done).length / LAST) * 100);
+  $('#progress').style.width = Math.min(pct, 100) + '%';
+  const chip = $('#adjchip');
+  if (adj()) { chip.hidden = false; chip.textContent = 'Adjoint : ' + adj().nom; } else chip.hidden = true;
+}
+
+/* ---------- navigation ---------- */
+let current = 'trajet';
+function go(view) {
+  if (typeof view === 'number' && !canOpen(view)) return; // étape future : impossible d'y aller
+  current = view; stopTimer(); render(); window.scrollTo({ top: 0 });
+}
+function render() {
+  stopLockTick();
+  const app = $('#app');
+  app.innerHTML = current === 'trajet' ? viewTrajet() : viewStep(current);
+  app.firstElementChild && app.firstElementChild.classList.add('fade-in');
+  bind(current);
+}
+
+/* ---------- vue « trajet » ---------- */
+function viewTrajet() {
+  const rows = STEPS.map((st, i) => {
+    const n = i < LAST ? String(i).padStart(2, '0') : 'FIN';
+    if (!canOpen(i)) {
+      return `<div class="stop locked" aria-disabled="true"><span class="n">${n}</span><span class="t">? ? ?<small>Prochain arrêt inconnu</small></span><span class="pill lock">${ICON.lock}Verrouillé</span></div>`;
+    }
+    const done = S.done[i];
+    const pill = done ? '<span class="pill done">Terminé</span>' : '<span class="pill now">En cours</span>';
+    return `<button type="button" class="stop${done ? '' : ' current'}" data-go="${i}"><span class="n">${n}</span><span class="t">${esc(st.titre)}<small>${esc(st.sous)}</small></span>${pill}</button>`;
+  }).join('');
+  const cur = Math.min(S.unlocked, LAST);
+  return `<section class="stack">
+      <p class="eyebrow">Votre trajet</p>
+      <h1 style="font-size:28px">Train de nuit n° ${esc(CONFIG.train.numero)}</h1>
+      <p class="muted">${esc(CONFIG.train.depart)} → ${esc(CONFIG.train.destination)} · Chaque arrêt se débloque quand le précédent est résolu.</p>
+    </section>
+    <div class="board" role="list">
+      <div class="board-head"><span>Arrêt</span><span>Étape</span><span>État</span></div>
+      ${rows}
+    </div>
+    <button type="button" class="btn wide" data-go="${cur}">${S.done[cur] ? 'Revoir la dernière étape' : 'Reprendre l’étape en cours'}</button>`;
+}
+
+/* ---------- gabarit d'étape ---------- */
+// extra === false : juste « Ouvrez l’enveloppe n° X », sans sous-titre.
+function envelope(n, extra = '') {
+  const sub = extra === false ? '' : `<span>${extra || 'Elle contient les pièces de cette étape.'}</span>`;
+  return `<div class="envelope">${ICON.env}<div><b>Ouvrez l’enveloppe n° ${n}</b>${sub}</div></div>`;
+}
+// Indices : tirage au sort sans remise dans CONFIG.indices (sac mélangé, gardé dans la sauvegarde) ;
+// quand le sac est vide on le remélange, sans redonner le dernier indice en premier.
+function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function nextHint(n) {
+  if (n < 2) return 0;
+  let bag = (Array.isArray(S.hintBag) ? S.hintBag : []).filter((k) => Number.isInteger(k) && k < n);
+  if (!bag.length) {
+    bag = shuffle([...Array(n).keys()]);
+    if (bag[0] === S.lastHint) bag.push(bag.shift());
+  }
+  const k = bag.shift();
+  S.hintBag = bag; S.lastHint = k;
+  return k;
+}
+function askHint() {
+  const list = CONFIG.indices || [];
+  if (!list.length) return;
+  const h = list[nextHint(list.length)];
+  S.hintCount = (S.hintCount || 0) + 1; save();
+  const who = adj() ? adj().nom : 'Le contrôleur';
+  const link = h.lien ? `<a class="btn ghost wide" href="${esc(h.lien)}" target="_blank" rel="noopener noreferrer">${esc(h.libelleLien || 'Ouvrir le lien')}</a>` : '';
+  openDialog(`<h3>Indice</h3><div class="hint"><div class="av">${esc(initials(who))}</div><div class="bubble"><b>${esc(who)}</b>${esc(h.texte)}</div></div>${link}<button type="button" class="btn wide" id="dno">Merci</button>`);
+  $('#dno').addEventListener('click', closeDialog);
+}
+function success(i, text, nextLabel) {
+  const next = i + 1;
+  const env = next >= 1 && next <= 8 ? envelope(next) : '';
+  return `<div class="panel fade-in" id="ok-${i}"><div class="msg ok">${esc(text)}</div>${env}<button type="button" class="btn wide" data-go="${next}">${esc(nextLabel || 'Étape suivante')}</button></div>`;
+}
+function head(i, eyebrow) {
+  const hint = i < LAST && (CONFIG.indices || []).length ? `<button type="button" class="hintbtn" data-askhint>${ICON.bulb}Demander un indice</button>` : '';
+  return `<section class="stack"><div class="headrow"><p class="eyebrow">${esc(eyebrow || (i < LAST ? 'Étape ' + i : 'Terminus'))}</p>${hint}</div><h1 style="font-size:28px">${esc(STEPS[i].titre)}</h1></section>`;
+}
+const back = '<button type="button" class="link" data-go="trajet">← Voir le trajet</button>';
+
+function viewStep(i) {
+  const done = !!S.done[i];
+  const V = [w0, w1, w2, w3, w4, w5, w6, w7, w8, w9][i];
+  return V(done) + back;
+}
+
+/* ---------- étape 0 : bienvenue ---------- */
+function w0(done) {
+  const seen = S.services || [];
+  const tiles = CONFIG.services.map((s) => { const v = seen.includes(s.id); return `<button type="button" class="service${v ? ' seen' : ''}" data-svc="${esc(s.id)}" aria-pressed="${v}">${ICON[s.icone] || ''}${esc(s.nom)}</button>`; }).join('');
+  return head(0, 'Services à bord') + `
+    <div class="panel">
+      <div class="depart"><div><span class="eyebrow">Destination</span><b>${esc(CONFIG.train.destination)}</b></div><div class="meta"><span class="eyebrow">Départ</span><span>${esc(CONFIG.train.depart)}</span></div></div>
+      <p class="lead">${esc(CONFIG.textes.accueil.replace('{destination}', CONFIG.train.destination))}</p>
+      <div class="services">${tiles}</div>
+      <div class="service-info idle" id="svcinfo" aria-live="polite">Touchez un service pour en savoir plus.</div>
+    </div>
+    <div class="alert" id="alert"${done ? '' : ' hidden'}>
+      <p class="eyebrow">Alerte · Incident en cours</p>
+      <h2 style="font-size:22px">Le train a été attaqué</h2>
+      <p>${esc(CONFIG.textes.alerte)}</p>
+      <button type="button" class="btn wide" id="w0go">Voir la vidéo interceptée</button>
+    </div>`;
+}
+/* ---------- étape 1 : la menace ---------- */
+function w1(done) {
+  return head(1) + videoHTML('V1', 'Vidéo du méchant') + `
+    ${done ? success(1, 'Menace identifiée. L’enquête commence.') : '<button type="button" class="btn wide" id="w1go">Continuer</button>'}`;
+}
+/* ---------- étape 2 : l'enquêteur adjoint ---------- */
+function w2(done) {
+  const cards = CONFIG.enqueteurs.map((e) => {
+    const st = CONFIG.statsCodes.map((n, k) => `<span title="${esc(CONFIG.statsNoms[k])}"><b>${e.stats[k]}</b><i>${esc(n)}</i></span>`).join('');
+    const ph = e.photo ? `<img src="${esc(e.photo)}" alt="">` : esc(initials(e.nom));
+    return `<button type="button" class="fut" data-adj="${e.id}" aria-pressed="${S.adjoint === e.id}"${done ? ' disabled' : ''}><span class="ovr">${ovr(e.stats)}</span><span class="pos">ENQ</span><span class="ph">${ph}</span><span class="nm">${esc(e.nom)}</span><span class="st">${st}</span></button>`;
+  }).join('');
+  return head(2) + envelope(2, 'Les trois cartes des candidats sont à l’intérieur.') + `
+    <div class="panel"><p class="lead">${esc(CONFIG.textes.adjoint)}</p><div class="cards">${cards}</div><p class="statlegend">${CONFIG.statsCodes.map((c, k) => esc(c) + ' ' + esc(CONFIG.statsNoms[k])).join(' · ')}</p>
+    ${done ? '' : '<p class="muted">Touchez la carte de votre choix.</p>'}</div>
+    ${done ? success(2, adjName() + ' rejoint l’enquête !') : ''}`;
+}
+/* ---------- étape 3 : la canette ---------- */
+function w3(done) {
+  const wait = !done && lock3Left() > 0;
+  const list = CONFIG.suspects.map((n, k) => `<button type="button" class="suspect" data-sus="${k + 1}"${done || wait ? ' disabled' : ''}><span class="num">${k + 1}</span><span><b>${esc(n)}</b><small>Suspect n° ${k + 1}</small></span></button>`).join('');
+  return head(3) + envelope(3) + `
+    <div class="panel"><p class="lead">${esc(CONFIG.textes.canette)}</p></div>
+    ${videoHTML('V2', 'Interrogatoires des suspects')}
+    <div class="panel"><h2 style="font-size:20px">Qui a empoisonné la canette du conducteur ?</h2><div class="suspects${wait ? ' wait' : ''}">${list}</div><div id="w3msg" class="stack"></div></div>
+    ${done ? success(3, 'Coupable démasqué ! ' + CONFIG.suspects[CONFIG.coupable - 1] + ' avoue tout.') : ''}`;
+}
+// Pénalité : l'heure de fin est gardée dans la sauvegarde (S.lock3), donc l'attente continue
+// pendant qu'on navigue ailleurs, même après un rechargement. Mise à jour sur place, sans
+// redessiner la page (la vidéo des interrogatoires n'est pas interrompue).
+let lockTick = null;
+function stopLockTick() { if (lockTick) clearInterval(lockTick); lockTick = null; }
+function lock3Left() { return S.lock3 ? Math.max(0, Math.ceil((S.lock3.until - Date.now()) / 1000)) : 0; }
+function dureeTexte(sec) { return sec % 60 ? fmt(sec) : `${sec / 60} minute${sec / 60 > 1 ? 's' : ''}`; }
+function paintLock3() {
+  const box = $('#w3msg');
+  if (!box || S.done[3]) { stopLockTick(); return; }
+  const left = lock3Left();
+  const wait = left > 0;
+  $$('[data-sus]').forEach((b) => { b.disabled = wait; });
+  $('.suspects').classList.toggle('wait', wait);
+  if (wait) {
+    if (!$('#w3cd')) {
+      const nom = CONFIG.suspects[S.lock3.suspect - 1] || 'Ce suspect';
+      box.innerHTML = `<div class="msg err">${esc(nom)} a un alibi solide. Le vrai coupable court toujours…</div><div class="cooldown"><span>Nouvelle accusation possible dans</span><b id="w3cd"></b></div>`;
+    }
+    $('#w3cd').textContent = fmt(left);
+    if (!lockTick) lockTick = setInterval(paintLock3, 500);
+  } else {
+    stopLockTick();
+    if (S.lock3) { S.lock3 = null; save(); box.innerHTML = '<p class="muted">Vous pouvez de nouveau accuser un suspect.</p>'; }
+  }
+}
+/* ---------- étape 4 : la cabine ---------- */
+function w4(done) {
+  const num = /^\d+$/.test(String(CONFIG.cabine.code));
+  return head(4) + envelope(4, false) + `
+    <div class="annonce">${ICON.mega}<p>${esc(CONFIG.textes.cabineInfo)}</p></div>
+    <div class="panel"><form id="w4form" class="stack"><input class="input code" id="w4code" aria-label="Code d’accès" placeholder="Code"${num ? ' inputmode="numeric"' : ''} autocomplete="off" autocapitalize="off" spellcheck="false"${done ? ' disabled' : ''}><button class="btn wide" type="submit"${done ? ' disabled' : ''}>Ouvrir la porte</button></form><div id="w4msg"></div></div>
+    ${done ? success(4, CONFIG.textes.cabineOk) : ''}`;
+}
+/* ---------- étape 5 : les leviers ---------- */
+let leverSeq = [];
+function w5(done) {
+  const cols = ['#E4002B', '#F2C14E', '#2E9E5B', '#1D5FBF', '#A1006B', '#F08A24'];
+  const levers = ['A', 'B', 'C', 'D', 'E', 'F'].map((l, k) => {
+    const idx = leverSeq.indexOf(l);
+    return `<button type="button" class="lever" data-lev="${l}" aria-pressed="${idx >= 0}" style="--c:${cols[k]}"${done ? ' disabled' : ''}><span class="slot"><span class="knob"></span></span><span class="lt">${l}</span>${idx >= 0 ? `<span class="ord">${idx + 1}</span>` : ''}</button>`;
+  }).join('');
+  return head(5) + envelope(5, false) + `
+    <div class="panel"><p class="lead">${esc(CONFIG.textes.leviers)}</p>
+      <div class="levers">${levers}</div>
+      <p class="seq" id="seq">${leverSeq.length ? leverSeq.join(' → ') : 'Aucun levier activé'}</p>
+      <div class="row"><button type="button" class="btn" id="w5go"${done ? ' disabled' : ''}>Valider</button><button type="button" class="btn ghost" id="w5reset"${done ? ' disabled' : ''}>Remettre les leviers</button></div>
+      <div id="w5msg"></div></div>
+    ${done ? success(5, CONFIG.textes.leviersOk) : ''}`;
+}
+/* ---------- étape 6 : la battle ---------- */
+let timer = { left: null, run: false, id: null };
+function fmt(s) { return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); }
+function stopTimer() { if (timer.id) clearInterval(timer.id); timer.id = null; timer.run = false; }
+function w6(done) {
+  if (timer.left === null) timer.left = CONFIG.battle.dureeSecondes;
+  const words = CONFIG.battle.mots.map((m) => `<div class="word">${esc(m)}</div>`).join('');
+  return `<div class="stack skin-street">` + head(6, 'Étape 6 · Wagon-bar') + envelope(6, 'Les règles et les fiches de battle sont à l’intérieur.') +
+    videoHTML('V3', 'Le défi du wagon-bar') + `
+    <div class="panel"><p class="lead">${esc(CONFIG.textes.battle)}</p><p class="eyebrow">Mots imposés</p><div class="words">${words}</div></div>
+    <div class="panel"><p class="eyebrow">Préparation</p><div class="timer" id="timer">${fmt(timer.left)}</div>
+      <div class="row"><button type="button" class="btn street" id="tgo">${timer.run ? 'Pause' : 'Lancer le chrono'}</button><button type="button" class="btn ghost" id="treset">Remettre à 4:00</button></div></div>
+    <div class="panel"><p class="eyebrow">Carte « Respect »</p><p class="muted">Saisissez le code que le jury vous a remis.</p>
+      <form id="w6form" class="stack"><input class="input code" id="w6code" inputmode="numeric" maxlength="4" autocomplete="off"${done ? ' disabled' : ''}><button class="btn street wide" type="submit"${done ? ' disabled' : ''}>Valider le code</button></form><div id="w6msg"></div></div>
+    ${done ? success(6, CONFIG.textes.battleOk) : ''}</div>`;
+}
+/* ---------- étape 7 : Mastermind ---------- */
+let mmInput = '';
+function score(guess, code) {
+  const res = Array(4).fill('gris'); const left = {};
+  for (let i = 0; i < 4; i++) { if (guess[i] === code[i]) res[i] = 'vert'; else left[code[i]] = (left[code[i]] || 0) + 1; }
+  for (let i = 0; i < 4; i++) { if (res[i] !== 'vert' && left[guess[i]] > 0) { res[i] = 'orange'; left[guess[i]]--; } }
+  return res;
+}
+function w7(done) {
+  const slots = [0, 1, 2, 3].map((k) => `<div class="dslot${!done && k === mmInput.length ? ' cur' : ''}">${esc(mmInput[k] || '')}</div>`).join('');
+  const hist = S.mm.map((g, n) => { const sc = score(g, CONFIG.menottes.code); return `<div class="hrow"><span class="i">#${n + 1}</span>${g.split('').map((d, k) => `<span class="cell ${sc[k]}">${d}</span>`).join('')}</div>`; }).reverse().join('');
+  const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9'].map((d) => `<button type="button" class="key" data-k="${d}">${d}</button>`).join('') +
+    '<button type="button" class="key act" data-k="del">Effacer</button><button type="button" class="key" data-k="0">0</button><button type="button" class="key go" data-k="ok">Valider</button>';
+  return `<div class="stack skin-term">` + head(7, 'Étape 7 · Terminal') + envelope(7, 'L’écran des menottes et le journal de piratage sont à l’intérieur.') + `
+    <div class="panel"><p class="term-line">&gt; SYSTÈME DE VERROUILLAGE À DISTANCE</p><p class="term-line">&gt; Prisonnière : EUGÉNIE · État : <span class="red">${done ? 'DÉVERROUILLÉ' : 'VERROUILLÉ'}</span></p>
+      <p class="term-line" style="color:#9FD8B5">${esc(CONFIG.textes.menottes)}</p>
+      <div class="legend"><span><i style="background:#3DDC84"></i>bien placé</span><span><i style="background:#FF9F1C"></i>mal placé</span><span><i style="background:#56605A"></i>faux</span></div>
+      <div class="slots">${slots}</div>
+      ${done ? '' : `<div class="pad">${keys}</div>`}
+      <div id="w7msg"></div>
+      ${hist ? `<p class="eyebrow">Essais (${S.mm.length})</p><div class="hist">${hist}</div>` : ''}</div>
+    ${done ? success(7, CONFIG.textes.menottesOk) : ''}</div>`;
+}
+/* ---------- étape 8 : le repaire ---------- */
+function w8(done) {
+  return head(8) + envelope(8, 'La carte du trajet et ses indices sont à l’intérieur.') + `
+    <div class="panel"><p class="lead">${esc(CONFIG.textes.repaire)}</p>
+      <form id="w8form" class="stack"><div class="field"><label for="w8lieu">Où se cachent les bandits ?</label><input class="input" id="w8lieu" autocomplete="off"${done ? ' disabled' : ''}></div><button class="btn wide" type="submit"${done ? ' disabled' : ''}>Lancer l’assaut</button></form><div id="w8msg"></div></div>
+    ${done ? success(8, 'Repaire localisé !', 'Terminus') : ''}`;
+}
+/* ---------- terminus ---------- */
+function w9() {
+  let dur = '';
+  if (S.startedAt && S.finishedAt) { const m = Math.round((S.finishedAt - S.startedAt) / 60000); dur = `Temps de l’enquête : ${Math.floor(m / 60)} h ${String(m % 60).padStart(2, '0')} min`; }
+  return head(LAST, 'Terminus') + videoHTML('V4', 'Vidéo de fin') + `
+    <div class="panel"><h2 style="font-size:24px">Mission accomplie</h2><p class="lead">${esc(CONFIG.textes.fin)}</p>${dur ? `<p class="eyebrow">${dur}</p>` : ''}${adj() ? `<p class="muted">Enquêteur adjoint : ${esc(adj().nom)}</p>` : ''}</div>`;
+}
+
+/* ---------- interactions ---------- */
+function flash(id, cls, text) { const el = document.getElementById(id); if (el) el.innerHTML = `<div class="msg ${cls}">${esc(text)}</div>`; }
+function bind(view) {
+  $$('[data-go]').forEach((b) => b.addEventListener('click', () => { const v = b.dataset.go; go(v === 'trajet' ? 'trajet' : Number(v)); }));
+  $$('[data-askhint]').forEach((b) => b.addEventListener('click', askHint));
+  if (view === 0) {
+    const allSeen = () => CONFIG.services.every((s) => S.services.includes(s.id));
+    let pending = false;
+    const reveal = () => {
+      if (pending || !$('#alert').hidden) return;
+      pending = true;
+      setTimeout(() => { const al = $('#alert'); if (current === 0 && al && al.hidden) { al.hidden = false; al.scrollIntoView({ behavior: 'smooth', block: 'center' }); } }, 1500);
+    };
+    $$('[data-svc]').forEach((b) => b.addEventListener('click', () => {
+      const s = CONFIG.services.find((x) => x.id === b.dataset.svc);
+      const info = $('#svcinfo');
+      info.classList.remove('idle'); info.innerHTML = `<b>${esc(s.nom)}</b>${esc(s.texte)}`;
+      $$('[data-svc]').forEach((x) => x.classList.toggle('active', x === b));
+      if (!S.services.includes(s.id)) { S.services.push(s.id); save(); }
+      b.classList.add('seen'); b.setAttribute('aria-pressed', 'true');
+      if (allSeen()) reveal();
+    }));
+    if (allSeen()) reveal();
+    $('#w0go').addEventListener('click', () => { complete(0); go(1); });
+  }
+  if (view === 1 && $('#w1go')) $('#w1go').addEventListener('click', () => { complete(1); render(); });
+  if (view === 2) $$('[data-adj]').forEach((b) => b.addEventListener('click', () => {
+    const e = CONFIG.enqueteurs.find((x) => x.id === b.dataset.adj);
+    openDialog(`<h3>Recruter ${esc(e.nom)} ?</h3><p class="muted">Ce choix est définitif : ${esc(e.nom)} vous accompagnera jusqu’au bout de l’enquête.</p><div class="row"><button type="button" class="btn" id="dok">Recruter</button><button type="button" class="btn ghost" id="dno">Annuler</button></div>`);
+    $('#dok').addEventListener('click', () => { S.adjoint = e.id; save(); closeDialog(); complete(2); render(); });
+    $('#dno').addEventListener('click', closeDialog);
+  }));
+  if (view === 3) {
+    $$('[data-sus]').forEach((b) => b.addEventListener('click', () => {
+      if (lock3Left() > 0) return;
+      const k = Number(b.dataset.sus); const nom = CONFIG.suspects[k - 1];
+      openDialog(`<h3>Accuser ${esc(nom)} ?</h3><p class="muted">Suspect n° ${k}. En cas d’erreur, vous devrez attendre ${dureeTexte(CONFIG.attenteAccusation)} avant de pouvoir accuser à nouveau.</p><div class="row"><button type="button" class="btn" id="dok">Accuser</button><button type="button" class="btn ghost" id="dno">Annuler</button></div>`);
+      $('#dno').addEventListener('click', closeDialog);
+      $('#dok').addEventListener('click', () => {
+        closeDialog();
+        if (lock3Left() > 0) return;
+        if (k === CONFIG.coupable) { S.lock3 = null; complete(3); render(); }
+        else {
+          S.errors[3] = (S.errors[3] || 0) + 1;
+          S.lock3 = { until: Date.now() + CONFIG.attenteAccusation * 1000, suspect: k };
+          save(); paintLock3();
+        }
+      });
+    }));
+    paintLock3();
+  }
+  if (view === 4) $('#w4form').addEventListener('submit', (ev) => {
+    ev.preventDefault();
+    const g = norm($('#w4code').value);
+    if (g && g === norm(CONFIG.cabine.code)) { complete(4); render(); }
+    else flash('w4msg', 'err', 'Code incorrect : la porte reste verrouillée.');
+  });
+  if (view === 5) {
+    $$('[data-lev]').forEach((b) => b.addEventListener('click', () => { const l = b.dataset.lev; if (!leverSeq.includes(l)) { leverSeq.push(l); render(); } }));
+    $('#w5reset').addEventListener('click', () => { leverSeq = []; render(); });
+    $('#w5go').addEventListener('click', () => {
+      const ok = leverSeq.length === CONFIG.leviers.length && leverSeq.every((l, k) => l === CONFIG.leviers[k].toUpperCase());
+      if (ok) { leverSeq = []; complete(5); render(); }
+      else { leverSeq = []; render(); flash('w5msg', 'err', 'Mauvaise combinaison : le train accélère ! Recommencez.'); }
+    });
+  }
+  if (view === 6) {
+    $('#tgo').addEventListener('click', () => {
+      if (timer.run) { stopTimer(); $('#tgo').textContent = 'Reprendre'; return; }
+      if (timer.left <= 0) timer.left = CONFIG.battle.dureeSecondes;
+      timer.run = true; $('#tgo').textContent = 'Pause'; $('#timer').classList.remove('end'); wake();
+      timer.id = setInterval(() => {
+        timer.left--; const el = $('#timer'); if (el) el.textContent = fmt(Math.max(timer.left, 0));
+        if (timer.left <= 0) { stopTimer(); if (el) { el.classList.add('end'); el.textContent = 'TEMPS !'; } const b = $('#tgo'); if (b) b.textContent = 'Relancer'; beep(); }
+      }, 1000);
+    });
+    $('#treset').addEventListener('click', () => { stopTimer(); timer.left = CONFIG.battle.dureeSecondes; render(); });
+    $('#w6form').addEventListener('submit', (ev) => {
+      ev.preventDefault();
+      if (norm($('#w6code').value) === norm(CONFIG.battle.code)) { stopTimer(); complete(6); render(); }
+      else flash('w6msg', 'err', 'Code refusé. Le wagon-bar ne vous respecte pas encore…');
+    });
+  }
+  if (view === 7) $$('[data-k]').forEach((b) => b.addEventListener('click', () => {
+    const k = b.dataset.k;
+    if (k === 'del') mmInput = mmInput.slice(0, -1);
+    else if (k === 'ok') {
+      if (mmInput.length < 4) { flash('w7msg', 'err', 'Le code fait 4 chiffres.'); return; }
+      S.mm.push(mmInput);
+      const win = mmInput === CONFIG.menottes.code; mmInput = '';
+      save();
+      if (win) { complete(7); }
+    } else if (mmInput.length < 4) mmInput += k;
+    render();
+  }));
+  if (view === 8) $('#w8form').addEventListener('submit', (ev) => {
+    ev.preventDefault();
+    const g = norm($('#w8lieu').value);
+    if (g && CONFIG.repaire.map(norm).includes(g)) { complete(8); render(); }
+    else flash('w8msg', 'err', 'Les bandits ne sont pas là. Regardez encore la carte.');
+  });
+}
+
+/* ---------- petits outils ---------- */
+let wl = null;
+async function wake() { try { if ('wakeLock' in navigator && !wl) wl = await navigator.wakeLock.request('screen'); } catch (e) {} }
+function beep() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    [0, 0.35, 0.7].forEach((t) => { const o = ctx.createOscillator(), g = ctx.createGain(); o.frequency.value = 880; o.connect(g); g.connect(ctx.destination); g.gain.setValueAtTime(0.25, ctx.currentTime + t); g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + t + 0.3); o.start(ctx.currentTime + t); o.stop(ctx.currentTime + t + 0.3); });
+    if (navigator.vibrate) navigator.vibrate([300, 150, 300]);
+  } catch (e) {}
+}
+function openDialog(html) { $('#dialog').innerHTML = html; $('#modal').hidden = false; const f = $('#dialog button, #dialog input'); if (f) f.focus(); }
+function closeDialog() { $('#modal').hidden = true; $('#dialog').innerHTML = ''; }
+$('#modal').addEventListener('click', (e) => { if (e.target.id === 'modal') closeDialog(); });
+
+/* ---------- mode maître du jeu : 5 touches rapides sur le logo ---------- */
+let taps = [];
+$('#logo').addEventListener('click', () => {
+  const now = Date.now(); taps = taps.filter((t) => now - t < 3000); taps.push(now);
+  if (taps.length >= 5) { taps = []; mjLogin(); }
+});
+function mjLogin() {
+  openDialog(`<h3>Mode maître du jeu</h3><form id="mjf" class="stack"><div class="field"><label for="mjc">Code</label><input class="input code" id="mjc" type="password" inputmode="numeric" autocomplete="off"></div><div id="mjmsg"></div><div class="row"><button class="btn" type="submit">Entrer</button><button type="button" class="btn ghost" id="dno">Fermer</button></div></form>`);
+  $('#dno').addEventListener('click', closeDialog);
+  $('#mjf').addEventListener('submit', (ev) => { ev.preventDefault(); if ($('#mjc').value === CONFIG.codeMJ) mjPanel(); else flash('mjmsg', 'err', 'Code incorrect.'); });
+}
+function mjPanel(confirmReset = false) {
+  const cur = Math.min(S.unlocked, LAST);
+  const vids = Object.keys(CONFIG.videos).map((k) => `<div><span>Vidéo ${k}</span><b>${VID[k] ? { ok: 'chargée', missing: 'absente', loading: 'chargement…' }[VID[k].state] : '—'}</b></div>`).join('');
+  const opts = STEPS.map((s, i) => `<option value="${i}"${i === cur ? ' selected' : ''}>${i < LAST ? i + ' · ' : ''}${esc(s.titre)}</option>`).join('');
+  openDialog(`<h3>Maître du jeu</h3>
+    <div class="mj-list"><div><span>Étape en cours</span><b>${cur} · ${esc(STEPS[cur].titre)}</b></div><div><span>Enquêteur adjoint</span><b>${esc(adj() ? adj().nom : '—')}</b></div><div><span>Indices demandés</span><b>${S.hintCount || 0}</b></div><div><span>Attente accusation (étape 3)</span><b>${lock3Left() > 0 ? fmt(lock3Left()) : '—'}</b></div><div><span>Essais Mastermind</span><b>${S.mm.length}</b></div>${vids}<div><span>Mode hors ligne</span><b id="swst">${HOSTED ? 'vérification…' : 'aperçu (non installé)'}</b></div></div>
+    <button type="button" class="btn wide" id="mjnext"${cur >= LAST ? ' disabled' : ''}>Valider l’étape en cours</button>
+    <div class="field"><label for="mjgo">Aller directement à une étape</label><select class="input" id="mjgo">${opts}</select></div>
+    <button type="button" class="btn ghost wide" id="mjjump">Débloquer jusqu’à cette étape</button>
+    <button type="button" class="btn ghost wide" id="mjreset" style="${confirmReset ? 'border-color:var(--danger);color:var(--danger)' : ''}">${confirmReset ? 'Confirmer : effacer toute la partie' : 'Réinitialiser la partie'}</button>
+    <button type="button" class="link" id="dno">Fermer</button>`);
+  if (HOSTED && navigator.serviceWorker) navigator.serviceWorker.getRegistration().then((r) => { const el = $('#swst'); if (el) el.textContent = r && r.active ? 'installé' : 'non installé'; }).catch(() => {});
+  $('#dno').addEventListener('click', closeDialog);
+  $('#mjnext').addEventListener('click', () => {
+    if (cur === 2 && !S.adjoint) S.adjoint = CONFIG.enqueteurs[0].id;
+    complete(cur); closeDialog(); go(Math.min(cur + 1, LAST));
+  });
+  $('#mjjump').addEventListener('click', () => {
+    const t = Number($('#mjgo').value);
+    for (let i = 0; i < t; i++) { if (i === 2 && !S.adjoint) S.adjoint = CONFIG.enqueteurs[0].id; if (!S.done[i]) complete(i); }
+    closeDialog(); go(t);
+  });
+  $('#mjreset').addEventListener('click', () => {
+    if (!confirmReset) { mjPanel(true); return; }
+    S = fresh(); save(); leverSeq = []; mmInput = ''; timer.left = null; closeDialog(); paintTop(); go(0);
+  });
+}
+
+/* ---------- démarrage ---------- */
+paintTop();
+current = S.done[S.unlocked] ? 'trajet' : S.unlocked;
+render();
+preloadVideos();
+if (HOSTED && 'serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js').catch(() => {}); }
+</script>
+
+</body>
+</html>
