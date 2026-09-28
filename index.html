@@ -229,7 +229,7 @@ button.stop:hover { background: rgba(255,255,255,.03); }
 .skin-term .panel { background: #0A120D; border-color: #1F7A45; font-family: var(--f-mono); }
 .skin-term .eyebrow { color: #39E27F; }
 .term-line { color: #39E27F; font-size: 14px; }
-.term-line .red { color: #FF4D4D; font-weight: 600; }
+.term-line .red, .term-line.red { color: #FF4D4D; font-weight: 600; }
 .slots { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
 .dslot { height: 64px; border-radius: 10px; border: 2px solid #1F7A45; display: grid; place-items: center; font-size: 30px; font-weight: 600; color: #CFF7E0; background: #06100A; }
 .dslot.cur { border-color: #39E27F; box-shadow: 0 0 0 3px rgba(57, 226, 127, .2); }
@@ -345,18 +345,22 @@ const CONFIG = {
     code: 'Pingouin', // mot remis par le jury (majuscules, accents et espaces ignorés)
   },
 
-  // Étape 7 : code des menottes (Mastermind).
-  menottes: { code: '1995' },
+  // Étape 7 : code des menottes (Mastermind). Au bout de essaisAvantChangement essais ratés,
+  // un nouveau code à 4 chiffres est tiré au hasard (et ainsi de suite tous les 10 essais ratés).
+  menottes: { code: '1995', essaisAvantChangement: 10 },
 
   // Étape 8 : lieu du repaire (plusieurs orthographes acceptées).
-  repaire: ['[lieu]'],
+  repaire: ['Hossegor', 'Soorts-Hossegor'],
 
   // Bouton « Demander un indice » en haut de chaque étape. Chaque demande tire un indice au hasard :
   // chacun sort une fois, dans le désordre, avant un nouveau tirage, et jamais deux fois le même
   // d’affilée. lien (facultatif) : bouton qui ouvre la page.
   indices: [
     { texte: 'Les vrais alcooliques sont foutus comme des grenouilles.' },
-    { texte: '[Indice n° 2 : réplique à coller ici]' },
+    { texte: 'Toutes les guerres commencent par des humiliations.' },
+    { texte: 'Allez, Jean-Baptiste Chayanin, tu dois te battre avec le texte.' },
+    { texte: 'Pourquoi les hommes préfèrent explorer le ciel que le fond des océans ?' },
+    { texte: 'Ici on souffre et on bétonne, au quartier ça pue le soufre et le béton.' },
     { texte: 'Regardez attentivement cette vidéo.', lien: 'https://www.youtube.com/watch?v=fTKbs7P_i3c&list=RDfTKbs7P_i3c&start_radio=1', libelleLien: 'Ouvrir la vidéo' },
   ],
 
@@ -372,7 +376,7 @@ const CONFIG = {
     leviersOk: 'Le train freine dans un long crissement… et s’arrête. Mais les bandits courent toujours, et seuls les voyageurs du wagon-bar savent où ils sont partis.',
     battle: 'Les voyageurs du wagon-bar ne parlent qu’à ceux qui ont gagné leur respect. Formez deux équipes : 4 minutes pour préparer un slam avec les mots imposés, puis 1 minute chacune devant le jury.',
     battleOk: 'Respect ! Les voyageurs du wagon-bar vous mettent sur la piste du terminal qui commande les menottes d’Eugénie.',
-    menottes: 'Le terminal des menottes est protégé par un code à 4 chiffres. À chaque essai, il indique le verdict de chaque chiffre.',
+    menottes: 'Le terminal des menottes est protégé par un code à 4 chiffres. À chaque essai, il indique le verdict de chaque chiffre. Attention : au bout de {n} essais ratés, le code est changé automatiquement.',
     menottesOk: 'Menottes désactivées : Eugénie est libérée !',
     repaire: 'Eugénie est libre, mais les bandits ont filé. Grâce aux indices de la carte, trouvez où ils se sont retranchés.',
     fin: 'Repaire localisé ! Les bandits sont cernés, Eugénie est sauvée et le train peut repartir. Bravo à toute l’équipe !',
@@ -398,7 +402,7 @@ const LAST = STEPS.length - 1;
 const KEY = 'interlits-evg-partie-v1';
 const HOSTED = !!window.EG_HOSTED;
 
-const fresh = () => ({ unlocked: 0, done: {}, adjoint: null, startedAt: null, finishedAt: null, services: [], hintCount: 0, hintBag: [], lastHint: null, lock3: null, chrono: null, mm: [], errors: {} });
+const fresh = () => ({ unlocked: 0, done: {}, adjoint: null, startedAt: null, finishedAt: null, services: [], hintCount: 0, hintBag: [], lastHint: null, lock3: null, chrono: null, mm: [], mmCode: null, mmChanges: 0, mmTotal: 0, errors: {} });
 function load() {
   try { const raw = localStorage.getItem(KEY); if (raw) return Object.assign(fresh(), JSON.parse(raw)); } catch (e) {}
   return fresh();
@@ -666,6 +670,14 @@ function w6(done) {
 }
 /* ---------- étape 7 : Mastermind ---------- */
 let mmInput = '';
+// Code en cours : celui de CONFIG, puis un code tiré au hasard après chaque série d'essais ratés.
+const mmCode = () => S.mmCode || CONFIG.menottes.code;
+const mmMax = () => CONFIG.menottes.essaisAvantChangement || 10;
+function newMmCode() {
+  let c;
+  do { c = String(Math.floor(Math.random() * 10000)).padStart(4, '0'); } while (c === mmCode());
+  S.mmCode = c; S.mmChanges = (S.mmChanges || 0) + 1; S.mm = [];
+}
 function score(guess, code) {
   const res = Array(4).fill('gris'); const left = {};
   for (let i = 0; i < 4; i++) { if (guess[i] === code[i]) res[i] = 'vert'; else left[code[i]] = (left[code[i]] || 0) + 1; }
@@ -674,17 +686,19 @@ function score(guess, code) {
 }
 function w7(done) {
   const slots = [0, 1, 2, 3].map((k) => `<div class="dslot${!done && k === mmInput.length ? ' cur' : ''}">${esc(mmInput[k] || '')}</div>`).join('');
-  const hist = S.mm.map((g, n) => { const sc = score(g, CONFIG.menottes.code); return `<div class="hrow"><span class="i">#${n + 1}</span>${g.split('').map((d, k) => `<span class="cell ${sc[k]}">${d}</span>`).join('')}</div>`; }).reverse().join('');
+  const hist = S.mm.map((g, n) => { const sc = score(g, mmCode()); return `<div class="hrow"><span class="i">#${n + 1}</span>${g.split('').map((d, k) => `<span class="cell ${sc[k]}">${d}</span>`).join('')}</div>`; }).reverse().join('');
   const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9'].map((d) => `<button type="button" class="key" data-k="${d}">${d}</button>`).join('') +
     '<button type="button" class="key act" data-k="del">Effacer</button><button type="button" class="key" data-k="0">0</button><button type="button" class="key go" data-k="ok">Valider</button>';
   return `<div class="stack skin-term">` + head(7, 'Étape 7 · Terminal') + envelope(7, 'L’écran des menottes et le journal de piratage sont à l’intérieur.') + `
     <div class="panel"><p class="term-line">&gt; SYSTÈME DE VERROUILLAGE À DISTANCE</p><p class="term-line">&gt; Prisonnière : EUGÉNIE · État : <span class="red">${done ? 'DÉVERROUILLÉ' : 'VERROUILLÉ'}</span></p>
-      <p class="term-line" style="color:#9FD8B5">${esc(CONFIG.textes.menottes)}</p>
+      <p class="term-line" style="color:#9FD8B5">${esc(CONFIG.textes.menottes.replace('{n}', mmMax()))}</p>
+      ${!done && S.mmChanges > 0 && !S.mm.length ? `<p class="term-line red" id="mmchanged">&gt; ALERTE : ${mmMax()} essais ratés. Le code a été changé automatiquement${S.mmChanges > 1 ? ` (${S.mmChanges}e fois)` : ''}. Les essais précédents ne sont plus valables.</p>` : ''}
+      ${done ? '' : `<p class="term-line" id="mmleft">&gt; Essais restants avant changement du code : <b>${mmMax() - S.mm.length}</b></p>`}
       <div class="legend"><span><i style="background:#3DDC84"></i>bien placé</span><span><i style="background:#FF9F1C"></i>mal placé</span><span><i style="background:#56605A"></i>faux</span></div>
       <div class="slots">${slots}</div>
       ${done ? '' : `<div class="pad">${keys}</div>`}
       <div id="w7msg"></div>
-      ${hist ? `<p class="eyebrow">Essais (${S.mm.length})</p><div class="hist">${hist}</div>` : ''}</div>
+      ${hist ? `<p class="eyebrow">Essais sur ce code (${S.mm.length}/${mmMax()})</p><div class="hist">${hist}</div>` : ''}</div>
     ${done ? success(7, CONFIG.textes.menottesOk) : ''}</div>`;
 }
 /* ---------- étape 8 : le repaire ---------- */
@@ -791,10 +805,11 @@ function bind(view) {
     if (k === 'del') mmInput = mmInput.slice(0, -1);
     else if (k === 'ok') {
       if (mmInput.length < 4) { flash('w7msg', 'err', 'Le code fait 4 chiffres.'); return; }
-      S.mm.push(mmInput);
-      const win = mmInput === CONFIG.menottes.code; mmInput = '';
+      S.mm.push(mmInput); S.mmTotal = (S.mmTotal || 0) + 1;
+      const win = mmInput === mmCode(); mmInput = '';
+      if (win) complete(7);
+      else if (S.mm.length >= mmMax()) { newMmCode(); beep(); }
       save();
-      if (win) { complete(7); }
     } else if (mmInput.length < 4) mmInput += k;
     render();
   }));
@@ -899,7 +914,7 @@ function mjPanel(confirmReset = false) {
   const vids = Object.keys(CONFIG.videos).map((k) => `<div><span>Vidéo ${k}</span><b>${VID[k] ? { ok: 'chargée', missing: 'absente', loading: 'chargement…' }[VID[k].state] : '—'}</b></div>`).join('');
   const opts = STEPS.map((s, i) => `<option value="${i}"${i === cur ? ' selected' : ''}>${i < LAST ? i + ' · ' : ''}${esc(s.titre)}</option>`).join('');
   openDialog(`<h3>Maître du jeu</h3>
-    <div class="mj-list"><div><span>Étape en cours</span><b>${cur} · ${esc(STEPS[cur].titre)}</b></div><div><span>Enquêteur adjoint</span><b>${esc(adj() ? adj().nom : '—')}</b></div><div><span>Chrono de la partie</span><b>${chronoMJ()}</b></div><div><span>Indices demandés</span><b>${S.hintCount || 0}</b></div><div><span>Attente accusation (étape 3)</span><b>${lock3Left() > 0 ? fmt(lock3Left()) : '—'}</b></div><div><span>Essais Mastermind</span><b>${S.mm.length}</b></div>${vids}<div><span>Mode hors ligne</span><b id="swst">${HOSTED ? 'vérification…' : 'aperçu (non installé)'}</b></div></div>
+    <div class="mj-list"><div><span>Étape en cours</span><b>${cur} · ${esc(STEPS[cur].titre)}</b></div><div><span>Enquêteur adjoint</span><b>${esc(adj() ? adj().nom : '—')}</b></div><div><span>Chrono de la partie</span><b>${chronoMJ()}</b></div><div><span>Indices demandés</span><b>${S.hintCount || 0}</b></div><div><span>Attente accusation (étape 3)</span><b>${lock3Left() > 0 ? fmt(lock3Left()) : '—'}</b></div><div><span>Code actuel des menottes</span><b>${esc(mmCode())}${S.mmChanges ? ` (changé ${S.mmChanges} fois)` : ''}</b></div><div><span>Essais Mastermind</span><b>${S.mmTotal || S.mm.length}</b></div>${vids}<div><span>Mode hors ligne</span><b id="swst">${HOSTED ? 'vérification…' : 'aperçu (non installé)'}</b></div></div>
     <button type="button" class="btn wide" id="mjnext"${cur >= LAST ? ' disabled' : ''}>Valider l’étape en cours</button>
     <div class="field"><label for="mjgo">Aller directement à une étape</label><select class="input" id="mjgo">${opts}</select></div>
     <button type="button" class="btn ghost wide" id="mjjump">Débloquer jusqu’à cette étape</button>
